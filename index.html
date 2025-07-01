@@ -190,22 +190,7 @@ button:hover {
       document.getElementById("s" + i).value = s;
       
     };
-　　document.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") {
-    // 現在フォーカス中の要素を取得
-    const active = document.activeElement;
-    if (!active || !active.id) return;
-
-    // IDが h0 / m0 / s0 〜 h6 / m6 / s6 に一致するか確認
-    const match = active.id.match(/([hms])(\d)/);
-    if (match) {
-      const index = parseInt(match[2]); // 何番目のタイマーか
-      const name = timerKeys[index];    // 対応するキー
-      startTimer(name, index);          // スタート関数を実行
-    }
-  }
-});
-
+　　
     
   </script>
 </body>
