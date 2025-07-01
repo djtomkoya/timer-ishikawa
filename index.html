@@ -37,6 +37,14 @@
   text-shadow: 2px 2px 5px #aaa;
   font-family: 'Arial Black', sans-serif;
 }
+.comment-title {
+  font-size: 50px;
+  font-weight: bold;
+  color: #000703;  /* 緑色で目立つ */
+  text-shadow: 1px 1px 3px #aaa;
+  font-family: 'Arial Black', sans-serif;
+}
+
 
   </style>
 </head>
@@ -84,10 +92,13 @@
       const isAPC = label.includes("APC");
       const isShohin = label.includes("商品時間"); 
       const isRecap = label.includes("リキャップ");
+      const isComment = label.includes("コメントポーズ");
+
       const box = document.createElement("div");
       box.className = "timer-box";
       box.innerHTML = `
-       　<h2 class="${isAPC ? 'apc-title' : isShohin ? 'shohin-title' : isRecap ? 'recap-title' : ''}">${label}</h2>
+       <h2 class="${isAPC ? 'apc-title' : isShohin ? 'shohin-title' : isRecap ? 'recap-title' : isComment ? 'comment-title' : ''}">${label}</h2>
+
 
         <div id="display${i}" class="display-time">--時間--分--秒</div>
         <input type="number" id="quick${i}" placeholder="例: 15415" onchange="convertQuick(${i})"> ←まとめて入力<br/>
