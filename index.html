@@ -1,17 +1,55 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>共有タイマー</title>
+  <title>編集可能な共有タイマー</title>
   <style>
-    body { font-family: sans-serif; text-align: center; margin-top: 50px; }
-    h1 { font-size: 48px; }
-    button { font-size: 20px; padding: 10px 20px; margin: 10px; }
+    body { font-family: sans-serif; text-align: center; margin-top: 40px; }
+    .timer-box {
+      border: 1px solid #ccc; margin: 20px auto; padding: 20px; width: 320px; border-radius: 10px;
+    }
+    h2 { margin-bottom: 10px; }
+    button, input { font-size: 16px; margin: 5px; padding: 5px 10px; }
+    input[type="number"] { width: 80px; }
   </style>
 </head>
 <body>
-  <h1 id="display">60秒</h1>
-  <button onclick="startTimer()">スタート</button>
-  <button onclick="resetTimer()">リセット</button>
+  <h1>共有タイマー ×4（編集可）</h1>
+
+  <!-- タイマー1 -->
+  <div class="timer-box">
+    <h2>タイマー1</h2>
+    <div id="display1">--秒</div>
+    <input type="number" id="input1" value="60" min="1" />
+    <button onclick="startTimer('timer1', 'input1')">スタート</button>
+    <button onclick="resetTimer('timer1', 'input1')">リセット</button>
+  </div>
+
+  <!-- タイマー2 -->
+  <div class="timer-box">
+    <h2>タイマー2</h2>
+    <div id="display2">--秒</div>
+    <input type="number" id="input2" value="60" min="1" />
+    <button onclick="startTimer('timer2', 'input2')">スタート</button>
+    <button onclick="resetTimer('timer2', 'input2')">リセット</button>
+  </div>
+
+  <!-- タイマー3 -->
+  <div class="timer-box">
+    <h2>タイマー3</h2>
+    <div id="display3">--秒</div>
+    <input type="number" id="input3" value="60" min="1" />
+    <button onclick="startTimer('timer3', 'input3')">スタート</button>
+    <button onclick="resetTimer('timer3', 'input3')">リセット</button>
+  </div>
+
+  <!-- タイマー4 -->
+  <div class="timer-box">
+    <h2>タイマー4</h2>
+    <div id="display4">--秒</div>
+    <input type="number" id="input4" value="60" min="1" />
+    <button onclick="startTimer('timer4', 'input4')">スタート</button>
+    <button onclick="resetTimer('timer4', 'input4')">リセット</button>
+  </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
@@ -29,36 +67,45 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    const timerRef = ref(db, "sharedTimer");
 
-    let countdown = 60;
-    let interval = null;
+    const intervals = {};
 
-    // タイマー開始
-    window.startTimer = function () {
-      countdown = 60;
-      set(timerRef, { time: countdown, running: true });
-      interval = setInterval(() => {
+    // スタート関数（入力値に応じて開始）
+    window.startTimer = function(timerName, inputId) {
+      const seconds = parseInt(document.getElementById(inputId).value) || 60;
+      const timerRef = ref(db, "sharedTimers/" + timerName);
+
+      set(timerRef, { time: seconds, running: true });
+      clearInterval(intervals[timerName]);
+
+      let countdown = seconds;
+      intervals[timerName] = setInterval(() => {
         countdown--;
         set(timerRef, { time: countdown, running: true });
         if (countdown <= 0) {
-          clearInterval(interval);
+          clearInterval(intervals[timerName]);
         }
       }, 1000);
     };
 
-    // タイマーリセット
-    window.resetTimer = function () {
-      clearInterval(interval);
-      set(timerRef, { time: 60, running: false });
+    // リセット関数（入力値にリセット）
+    window.resetTimer = function(timerName, inputId) {
+      clearInterval(intervals[timerName]);
+      const resetVal = parseInt(document.getElementById(inputId).value) || 60;
+      const timerRef = ref(db, "sharedTimers/" + timerName);
+      set(timerRef, { time: resetVal, running: false });
     };
 
-    // 他の人の更新もリアルタイムで表示
-    onValue(timerRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        document.getElementById("display").innerText = data.time + "秒";
-      }
+    // 表示のリアルタイム監視
+    ["timer1", "timer2", "timer3", "timer4"].forEach((name, i) => {
+      const displayId = "display" + (i + 1);
+      const timerRef = ref(db, "sharedTimers/" + name);
+      onValue(timerRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          document.getElementById(displayId).innerText = data.time + "秒";
+        }
+      });
     });
   </script>
 </body>
