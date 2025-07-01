@@ -16,10 +16,7 @@
       color: #e67300;
       margin-bottom: 15px;
     }
-    .apc-title { color: rgb(232, 3, 3); 
-     font-size: 40px;}
-   
-
+    .apc-title { color: rgb(232, 3, 3); font-size: 40px; }
   </style>
 </head>
 <body>
@@ -69,6 +66,7 @@
       box.innerHTML = `
         <h2 class="${isAPC ? 'apc-title' : ''}">${label}</h2>
         <div id="display${i}" class="display-time">--時間--分--秒</div>
+        <input type="number" id="quick${i}" placeholder="例: 15415" onchange="convertQuick(${i})"> ←まとめ入力<br/>
         <input type="number" id="h${i}" min="0" value="0"> h
         <input type="number" id="m${i}" min="0" max="59" value="1"> m
         <input type="number" id="s${i}" min="0" max="59" value="0"> s <br/>
@@ -121,6 +119,18 @@
       const totalSeconds = h * 3600 + m * 60 + s;
       const timerRef = ref(db, "sharedTimers/" + name);
       set(timerRef, { time: totalSeconds, running: false });
+    };
+
+    window.convertQuick = function (i) {
+      const val = document.getElementById("quick" + i).value.trim();
+      if (!/^[0-9]+$/.test(val)) return;
+      const padded = val.padStart(6, "0");
+      const h = parseInt(padded.slice(0, -4)) || 0;
+      const m = parseInt(padded.slice(-4, -2)) || 0;
+      const s = parseInt(padded.slice(-2)) || 0;
+      document.getElementById("h" + i).value = h;
+      document.getElementById("m" + i).value = m;
+      document.getElementById("s" + i).value = s;
     };
   </script>
 </body>
