@@ -146,11 +146,11 @@ button:hover {
   const m = Math.floor((seconds % 3600) / 60);
   const s = seconds % 60;
 
-  const hh = String(h).padStart(1, "0");
+  const hh = String(h).padStart(2, "0");
   const mm = String(m).padStart(2, "0");
   const ss = String(s).padStart(2, "0");
 
-  return `${h}:${mm}:${ss}`;
+  return `${hh}:${mm}:${ss}`;
 }
 
     
@@ -197,6 +197,20 @@ button:hover {
       document.getElementById("s" + i).value = s;
       
     };
+    window.resetTimer = function (name, i) {
+  clearInterval(intervals[name]);
+
+  // 入力欄をすべて空にする
+  document.getElementById("h" + i).value = "";
+  document.getElementById("m" + i).value = "";
+  document.getElementById("s" + i).value = "";
+  document.getElementById("quick" + i).value = "";
+
+  // タイマーを0秒で止める
+  const timerRef = ref(db, "sharedTimers/" + name);
+  set(timerRef, { time: 0, running: false });
+};
+
 　　
     
   </script>
