@@ -10,9 +10,13 @@
     h2 { margin-bottom: 10px; }
     input, button { font-size: 16px; margin: 5px; padding: 5px 10px; }
     input[type="number"] { width: 60px; text-align: right; }
-    .display-time { font-size: 28px; font-weight: bold; margin-bottom: 10px; }
-.apc-title { color: red; }
-
+    .display-time {
+      font-size: 48px;
+      font-weight: bold;
+      color: #e67300;
+      margin-bottom: 15px;
+    }
+    .apc-title { color: red; }
   </style>
 </head>
 <body>
@@ -56,11 +60,12 @@
 
     timerLabels.forEach((label, i) => {
       const name = timerKeys[i];
+      const isAPC = label.includes("APC");
       const box = document.createElement("div");
       box.className = "timer-box";
       box.innerHTML = `
-        <h2>${label}</h2>
-        <div id="display${i}">--時間--分--秒</div>
+        <h2 class="${isAPC ? 'apc-title' : ''}">${label}</h2>
+        <div id="display${i}" class="display-time">--時間--分--秒</div>
         <input type="number" id="h${i}" min="0" value="0"> h
         <input type="number" id="m${i}" min="0" max="59" value="1"> m
         <input type="number" id="s${i}" min="0" max="59" value="0"> s <br/>
