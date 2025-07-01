@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>編集可能な共有タイマー</title>
+  <title>編集可能な共有タイマーin Ishikawa</title>
   <style>
     body { font-family: sans-serif; text-align: center; margin-top: 40px; }
     .timer-box {
@@ -13,11 +13,11 @@
   </style>
 </head>
 <body>
-  <h1>共有タイマー ×4（編集可）</h1>
+  <h1>石川中継　タイマー</h1>
 
   <!-- タイマー1 -->
   <div class="timer-box">
-    <h2>タイマー1</h2>
+    <h2>商品紹介時間</h2>
     <div id="display1">--秒</div>
     <input type="number" id="input1" value="60" min="1" />
     <button onclick="startTimer('timer1', 'input1')">スタート</button>
@@ -26,7 +26,7 @@
 
   <!-- タイマー2 -->
   <div class="timer-box">
-    <h2>タイマー2</h2>
+    <h2>①コメントポーズ</h2>
     <div id="display2">--秒</div>
     <input type="number" id="input2" value="60" min="1" />
     <button onclick="startTimer('timer2', 'input2')">スタート</button>
@@ -35,7 +35,7 @@
 
   <!-- タイマー3 -->
   <div class="timer-box">
-    <h2>タイマー3</h2>
+    <h2>②コメントポーズ</h2>
     <div id="display3">--秒</div>
     <input type="number" id="input3" value="60" min="1" />
     <button onclick="startTimer('timer3', 'input3')">スタート</button>
@@ -44,7 +44,31 @@
 
   <!-- タイマー4 -->
   <div class="timer-box">
-    <h2>タイマー4</h2>
+    <h2>③コメントポーズ</h2>
+    <div id="display4">--秒</div>
+    <input type="number" id="input4" value="60" min="1" />
+    <button onclick="startTimer('timer4', 'input4')">スタート</button>
+    <button onclick="resetTimer('timer4', 'input4')">リセット</button>
+  </div>
+  <!-- タイマー５ -->
+  <div class="timer-box">
+    <h2>リキャップまで</h2>
+    <div id="display4">--秒</div>
+    <input type="number" id="input4" value="60" min="1" />
+    <button onclick="startTimer('timer4', 'input4')">スタート</button>
+    <button onclick="resetTimer('timer4', 'input4')">リセット</button>
+  </div>
+  <!-- タイマー６ -->
+  <div class="timer-box">
+    <h2>APCまで</h2>
+    <div id="display4">--秒</div>
+    <input type="number" id="input4" value="60" min="1" />
+    <button onclick="startTimer('timer4', 'input4')">スタート</button>
+    <button onclick="resetTimer('timer4', 'input4')">リセット</button>
+  </div>
+   <!-- タイマー７ -->
+  <div class="timer-box">
+    <h2>次セグスタートまで</h2>
     <div id="display4">--秒</div>
     <input type="number" id="input4" value="60" min="1" />
     <button onclick="startTimer('timer4', 'input4')">スタート</button>
