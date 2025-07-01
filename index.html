@@ -11,7 +11,7 @@
     input, button { font-size: 30px; margin: 5px; padding: 5px 10px; }
     input[type="number"] { width: 150px; text-align: right; }
     .display-time {
-      font-size: 75px;
+      font-size: 150px;
       font-weight: bold;
       color: #f94903;
       margin-bottom: 15px;
@@ -44,6 +44,13 @@
   text-shadow: 1px 1px 3px #aaa;
   font-family: 'Arial Black', sans-serif;
 }
+.nextseg-title {
+  font-size: 50px;
+  font-weight: bold;
+  color: #242325; /* 紫色 */
+  text-shadow: 1px 1px 3px #aaa;
+}
+
 
 
   </style>
@@ -93,11 +100,13 @@
       const isShohin = label.includes("商品時間"); 
       const isRecap = label.includes("リキャップ");
       const isComment = label.includes("コメントポーズ");
+      const isNextSeg = label.includes("次セグスタート");
+
 
       const box = document.createElement("div");
       box.className = "timer-box";
       box.innerHTML = `
-       <h2 class="${isAPC ? 'apc-title' : isShohin ? 'shohin-title' : isRecap ? 'recap-title' : isComment ? 'comment-title' : ''}">${label}</h2>
+      <h2 class="${isAPC ? 'apc-title' : isShohin ? 'shohin-title' : isRecap ? 'recap-title' : isComment ? 'comment-title' : isNextSeg ? 'nextseg-title' : ''}">${label}</h2>
 
 
         <div id="display${i}" class="display-time">--時間--分--秒</div>
