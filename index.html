@@ -184,10 +184,17 @@ setInterval(updateClockTime, 1000);  // 1秒ごとに更新
 
      const timerRef = ref(db, "sharedTimers/" + name);
      clearInterval(intervals[name]);
+
+     document.getElementById("display" + i).innerText = formatTime(countdown);
+
      set(timerRef, { time: countdown, running: true });
 
      intervals[name] = setInterval(() => {
        countdown--;
+
+       document.getElementById("display" + i).innerText = formatTime(countdown);
+
+       
        if (countdown < 0) {
          clearInterval(intervals[name]);
          return;
