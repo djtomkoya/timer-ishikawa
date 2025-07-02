@@ -64,9 +64,10 @@ button:hover {
  background-color: #333333; /* ホバー時少し明るく */
 }
 .clock-time {
-  font-size: 50px;
-  color: #222;
-  margin-bottom: 5px;
+  font-size: 60px;
+  color: #070607;
+  margin-bottom: 10px;
+  font-weight: bold;
 }
 
 
@@ -141,7 +142,7 @@ setInterval(updateClockTime, 1000);  // 1秒ごとに更新
      <h2 class="${isAPC ? 'apc-title' : isShohin ? 'shohin-title' : isRecap ? 'recap-title' : isComment ? 'comment-title' : isNextSeg ? 'nextseg-title' : ''}">${label}</h2>
 
      <div class="clock-time">--:--:--</div> <!-- ★追加 -->
-     
+
        <div id="display${i}" class="display-time">--:--:--</div>
        <input type="number" id="quick${i}" placeholder="例: 15415" onchange="convertQuick(${i})"> ←まとめて入力<br/>
        <input type="number" id="h${i}" min="0" value="0"> h
