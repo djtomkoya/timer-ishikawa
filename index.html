@@ -231,7 +231,10 @@ button:hover {
         if (!data) return;
         let newTime = (data.time || 0) + (isAdd ? seconds : -seconds);
         if (newTime < 0) newTime = 0;
+        // タイマーを更新（書き込み）
         set(timerRef, { time: newTime, running: data.running });
+          // 一瞬で元に戻るのを防ぐために、表示も即時更新
+          document.getElementById("display" + i).innerText = formatTime(newTime);
       }, { onlyOnce: true });
     };
 　
