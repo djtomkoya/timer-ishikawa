@@ -129,6 +129,12 @@ button:hover {
         <input type="number" id="s${i}" min="0" max="59" value="0"> s <br/>
         <button onclick="startTimer('${name}', ${i})">スタート</button>
         <button onclick="resetTimer('${name}', ${i})">リセット</button>
+         ${ (isShohin || isRecap) ? `
+          <br/>
+          <input type="number" id="adjustSeconds${i}" placeholder="秒数" style="width:100px; text-align:right;">
+          <button onclick="adjustTimerByInput('${name}', ${i}, true)">＋</button>
+          <button onclick="adjustTimerByInput('${name}', ${i}, false)">−</button>
+        ` : '' }
       `;
       container.appendChild(box);
 
@@ -210,8 +216,25 @@ button:hover {
   const timerRef = ref(db, "sharedTimers/" + name);
   set(timerRef, { time: 0, running: false });
 };
+　    // 任意秒数 加算・減算ボタン用の関数
+    window.adjustTimerByInput = function(name, i, isAdd) {
+      const inputElem = document.getElementById(`adjustSeconds${i}`);
+      let seconds = parseInt(inputElem.value, 10);
+      if (isNaN(seconds) || seconds <= 0) {
+        alert("1秒以上の正しい数値を入力してください");
+        return;
+      }
 
-　　
+      const timerRef = ref(db, "sharedTimers/" + name);
+      onValue(timerRef, (snapshot) => {
+        const data = snapshot.val();
+        if (!data) return;
+        let newTime = (data.time || 0) + (isAdd ? seconds : -seconds);
+        if (newTime < 0) newTime = 0;
+        set(timerRef, { time: newTime, running: data.running });
+      }, { onlyOnce: true });
+    };
+　
     
   </script>
 </body>
