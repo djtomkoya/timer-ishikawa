@@ -90,6 +90,7 @@ button:hover {
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     const intervals = {};
+　　　const countdownValues = {}; // ← new!
 
     const timerLabels = [
       "商品時間",
@@ -166,16 +167,18 @@ button:hover {
       const m = parseInt(document.getElementById("m" + i).value) || 0;
       const s = parseInt(document.getElementById("s" + i).value) || 0;
       let countdown = h * 3600 + m * 60 + s;
+　　　　
+      countdownValues[name] = countdown; // ← new
 
       const timerRef = ref(db, "sharedTimers/" + name);
       clearInterval(intervals[name]);
       set(timerRef, { time: countdown, running: true });
 
       intervals[name] = setInterval(() => {
-        countdown--;
-        if (countdown < 0) {
-          clearInterval(intervals[name]);
-          return;
+      countdownValues[name]--; // ← new
+   　　 if (countdownValues[name] < 0) {
+     　　　 clearInterval(intervals[name]);
+    　　　  return;
         }
         set(timerRef, { time: countdown, running: true });
       }, 1000);
@@ -218,25 +221,26 @@ button:hover {
 };
 　    // 任意秒数 加算・減算ボタン用の関数
     window.adjustTimerByInput = function(name, i, isAdd) {
-      const inputElem = document.getElementById(`adjustSeconds${i}`);
-      let seconds = parseInt(inputElem.value, 10);
-      if (isNaN(seconds) || seconds <= 0) {
-        alert("1秒以上の正しい数値を入力してください");
-        return;
-      }
+  const inputElem = document.getElementById(`adjustSeconds${i}`);
+  let seconds = parseInt(inputElem.value, 10);
+  if (isNaN(seconds) || seconds <= 0) {
+    alert("1秒以上の正しい数値を入力してください");
+    return;
+  }
 
-      const timerRef = ref(db, "sharedTimers/" + name);
-      onValue(timerRef, (snapshot) => {
-        const data = snapshot.val();
-        if (!data) return;
-        let newTime = (data.time || 0) + (isAdd ? seconds : -seconds);
-        if (newTime < 0) newTime = 0;
-        // タイマーを更新（書き込み）
-        set(timerRef, { time: newTime, running: data.running });
-          // 一瞬で元に戻るのを防ぐために、表示も即時更新
-          document.getElementById("display" + i).innerText = formatTime(newTime);
-      }, { onlyOnce: true });
-    };
+  // カウントダウン中の変数に加算 or 減算
+  if (!(name in countdownValues)) {
+    alert("カウントダウン中にのみ操作できます");
+    return;
+  }
+
+  countdownValues[name] += (isAdd ? seconds : -seconds);
+  if (countdownValues[name] < 0) countdownValues[name] = 0;
+
+  const timerRef = ref(db, "sharedTimers/" + name);
+  set(timerRef, { time: countdownValues[name], running: true });
+  document.getElementById("display" + i).innerText = formatTime(countdownValues[name]);
+};
 　
     
   </script>
