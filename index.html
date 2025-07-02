@@ -64,6 +64,8 @@ button:hover {
   background-color: #333333; /* ホバー時少し明るく */
 }
 
+
+
   </style>
 </head>
 <body>
@@ -127,13 +129,7 @@ button:hover {
         <input type="number" id="s${i}" min="0" max="59" value="0"> s <br/>
         <button onclick="startTimer('${name}', ${i})">スタート</button>
         <button onclick="resetTimer('${name}', ${i})">リセット</button>
-        ${
-    　　　　(isShohin || isRecap) ? `
-   　　　　 <br/>
-   　　　　 <button onclick="adjustTimer('${name}', 60)">＋1分</button>
-  　　　　  <button onclick="adjustTimer('${name}', -60)">−1分</button>
-　　　　　  ` : ''}
-    　  `;
+      `;
       container.appendChild(box);
 
       const timerRef = ref(db, "sharedTimers/" + name);
@@ -179,6 +175,15 @@ button:hover {
       }, 1000);
     };
 
+    window.resetTimer = function (name, i) {
+      clearInterval(intervals[name]);
+      const h = parseInt(document.getElementById("h" + i).value) || 0;
+      const m = parseInt(document.getElementById("m" + i).value) || 0;
+      const s = parseInt(document.getElementById("s" + i).value) || 0;
+      const totalSeconds = h * 3600 + m * 60 + s;
+      const timerRef = ref(db, "sharedTimers/" + name);
+      set(timerRef, { time: totalSeconds, running: false });
+    };
 
     window.convertQuick = function (i) {
       const val = document.getElementById("quick" + i).value.trim();
@@ -206,17 +211,7 @@ button:hover {
   set(timerRef, { time: 0, running: false });
 };
 
-　　 // 🆕 追加：加算・減算関数
-    window.adjustTimer = function (name, delta) {
-      const timerRef = ref(db, "sharedTimers/" + name);
-      onValue(timerRef, (snapshot) => {
-        const data = snapshot.val();
-        if (!data) return;
-        let newTime = (data.time || 0) + delta;
-        if (newTime < 0) newTime = 0;
-        set(timerRef, { time: newTime, running: data.running });
-      }, { onlyOnce: true });
-    };
+　　
     
   </script>
 </body>
