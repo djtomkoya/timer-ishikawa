@@ -1,184 +1,246 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>石川中継タイマー</title>
-  <style>
-    body { font-family: sans-serif; text-align: center; margin-top: 40px; }
-    .timer-box {
-      border: 1px solid #ccc; margin: 20px auto; padding: 10px; width: 900px; border-radius: 10px;
-    }
-    h2 { margin-bottom: 10px; }
-    input, button { font-size: 30px; margin: 5px; padding: 5px 10px; }
-    input[type="number"] { width: 150px; text-align: right; }
-    .display-time {
-      font-size: 140px;
-      font-weight: bold;
-      color: #f94903;
-      margin-bottom: 15px;
-    }
-    .apc-title {
-      color: rgb(232, 3, 3);
-      font-size: 67px;
-      font-weight: bold;
-      font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
-      text-shadow: 2px 2px 5px #aaa;
-    }
-    .shohin-title {
-      color: #0080ff;
-      font-size: 60px;
-      font-weight: bold;
-      font-family: Arial, Helvetica, sans-serif;
-      text-shadow: 2px 2px 5px #aaa;
-    }
-    .recap-title {
-      color: #003937;
-      font-size: 60px;
-      font-weight: bold;
-      text-shadow: 2px 2px 5px #aaa;
-      font-family: 'Arial Black', sans-serif;
-    }
-    .comment-title {
-      font-size: 50px;
-      font-weight: bold;
-      color: #000703;
-      text-shadow: 1px 1px 3px #aaa;
-      font-family: 'Arial Black', sans-serif;
-    }
-    .nextseg-title {
-      font-size: 50px;
-      font-weight: bold;
-      color: #242325;
-      text-shadow: 1px 1px 3px #aaa;
-    }
-    button {
-      background-color: #5485bc;
-      color: #ffffff;
-      font-weight: bold;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-    button:hover {
-      background-color: #333333;
-    }
-    .clock-time {
-      font-size: 60px;
-      color: #070607;
-      margin-bottom: 10px;
-      font-weight: bold;
-    }
-  </style>
+ <title>石川中継タイマー</title>
+ <style>
+   body { font-family: sans-serif; text-align: center; margin-top: 40px; }
+   .timer-box {
+     border: 1px solid #ccc; margin: 20px auto; padding: 10px; width: 900px; border-radius: 10px;
+   }
+   h2 { margin-bottom: 10px; }
+   input, button { font-size: 30px; margin: 5px; padding: 5px 10px; }
+   input[type="number"] { width: 150px; text-align: right; }
+   .display-time {
+     font-size: 140px;
+     font-weight: bold;
+     color: #f94903;
+     margin-bottom: 15px;
+   }
+   .apc-title { color: rgb(232, 3, 3); font-size: 40px;
+   font-size: 67px;
+ font-weight: bold;
+ font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+ text-shadow: 2px 2px 5px #aaa;}
+
+   .shohin-title {
+ color: #0080ff;
+ font-size: 60px;
+ font-weight: bold;
+ font-family:Arial, Helvetica, sans-serif;
+ text-shadow: 2px 2px 5px #aaa;
+
+}
+.recap-title {
+ color: #003937;      /* オレンジっぽい派手な色 */
+ font-size: 60px;
+ font-weight: bold;
+ text-shadow: 2px 2px 5px #aaa;
+ font-family: 'Arial Black', sans-serif;
+}
+.comment-title {
+ font-size: 50px;
+ font-weight: bold;
+ color: #000703;  /* 緑色で目立つ */
+ text-shadow: 1px 1px 3px #aaa;
+ font-family: 'Arial Black', sans-serif;
+}
+.nextseg-title {
+ font-size: 50px;
+ font-weight: bold;
+ color: #242325; /* 紫色 */
+ text-shadow: 1px 1px 3px #aaa;
+}
+button {
+ background-color: #5485bc; /* 黒背景 */
+ color: #ffffff;   
+ font-weight: bold;         /* 白文字 */
+ border: none;
+ border-radius: 5px;
+ cursor: pointer;
+ transition: background-color 0.3s ease;
+}
+
+button:hover {
+ background-color: #333333; /* ホバー時少し明るく */
+}
+.clock-time {
+  font-size: 60px;
+  color: #070607;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+
+
+ </style>
 </head>
 <body>
-  <h1>石川中継タイマー</h1>
-  <div id="timers"></div>
+ <h1>石川中継タイマー</h1>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
-    import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js";
+ <div id="timers"></div>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyAfWHKmXad82HBw0zU-8k1t5OGKP5zhAdA",
-      authDomain: "timer-ishikawa.firebaseapp.com",
-      databaseURL: "https://timer-ishikawa-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "timer-ishikawa",
-      appId: "1:367450670827:web:a721a9f1484370ca8e20ae",
-      measurementId: "G-E7G8PKG9BZ",
-      messagingSenderId: "367450670827"
-    };
+ <script type="module">
+   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
+   import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js";
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    const intervals = {};
-    const timerKeys = ["timer1", "timer2", "timer3", "timer4", "timer5", "timer6", "timer7"];
-    const labels = [
-      "商品時間", "①コメントポーズ", "②コメントポーズ", "③コメントポーズ",
-      "リキャップまで", "APCまで", "次セグスタートまで"
-    ];
+   const firebaseConfig = {
+     apiKey: "AIzaSyAfWHKmXad82HBw0zU-8k1t5OGKP5zhAdA",
+     authDomain: "timer-ishikawa.firebaseapp.com",
+     databaseURL: "https://timer-ishikawa-default-rtdb.asia-southeast1.firebasedatabase.app",
+     projectId: "timer-ishikawa",
+     appId: "1:367450670827:web:a721a9f1484370ca8e20ae",
+     measurementId: "G-E7G8PKG9BZ",
+     messagingSenderId: "367450670827"
+   };
 
-    const container = document.getElementById("timers");
 
-    labels.forEach((label, i) => {
-      const name = timerKeys[i];
-      const isAPC = label.includes("APC");
-      const isShohin = label.includes("商品時間");
-      const isRecap = label.includes("リキャップ");
-      const isComment = label.includes("コメントポーズ");
-      const isNextSeg = label.includes("次セグスタート");
+   function updateClockTime() {
+  const now = new Date();
+  const hh = String(now.getHours()).padStart(2, '0');
+  const mm = String(now.getMinutes()).padStart(2, '0');
+  const ss = String(now.getSeconds()).padStart(2, '0');
+  const timeStr = `${hh}:${mm}:${ss}`;
+  const clockEls = document.querySelectorAll(".clock-time");
+  clockEls.forEach(el => {
+    el.innerText = timeStr;
+  });
+}
+setInterval(updateClockTime, 1000);  // 1秒ごとに更新
 
-      const box = document.createElement("div");
-      box.className = "timer-box";
-      box.innerHTML = `
-        <h2 class="${isAPC ? 'apc-title' : isShohin ? 'shohin-title' : isRecap ? 'recap-title' : isComment ? 'comment-title' : isNextSeg ? 'nextseg-title' : ''}">${label}</h2>
-        <div class="clock-time">--:--:--</div>
-        <div id="display${i}" class="display-time">--:--:--</div>
-        <input type="number" id="h${i}" min="0" value="0"> h
-        <input type="number" id="m${i}" min="0" max="59" value="0"> m
-        <input type="number" id="s${i}" min="0" max="59" value="0"> s <br/>
-        <button onclick="startTimer('${name}', ${i})">スタート</button>
-        <button onclick="resetTimer('${name}', ${i})">リセット</button>
-      `;
-      container.appendChild(box);
+   const app = initializeApp(firebaseConfig);
+   const db = getDatabase(app);
+   const intervals = {};
 
-      const timerRef = ref(db, "sharedTimers/" + name);
-      onValue(timerRef, (snapshot) => {
-        const data = snapshot.val();
-        if (data && data.endAt && data.running) {
-          if (intervals[name]) clearInterval(intervals[name]);
+   const timerLabels = [
+     "商品時間",
+     "①コメントポーズ",
+     "②コメントポーズ",
+     "③コメントポーズ",
+     "リキャップまで",
+     "APCまで",
+     "次セグスタートまで"
+   ];
 
-          intervals[name] = setInterval(() => {
-            const now = Math.floor(Date.now() / 1000);
-            const remaining = data.endAt - now;
-            if (remaining < 0) {
-              document.getElementById("display" + i).innerText = "0:00:00";
-              clearInterval(intervals[name]);
-              return;
-            }
-            document.getElementById("display" + i).innerText = formatTime(remaining);
-          }, 1000);
-        } else {
-          document.getElementById("display" + i).innerText = "0:00:00";
-        }
-      });
-    });
+   const timerKeys = [
+     "timer1", "timer2", "timer3", "timer4", "timer5", "timer6", "timer7"
+   ];
 
-    function formatTime(seconds) {
-      const h = Math.floor(seconds / 3600);
-      const m = Math.floor((seconds % 3600) / 60);
-      const s = seconds % 60;
-      return `${h}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
-    }
+   const container = document.getElementById("timers");
 
-    window.startTimer = function(name, i) {
-      const h = parseInt(document.getElementById("h" + i).value) || 0;
-      const m = parseInt(document.getElementById("m" + i).value) || 0;
-      const s = parseInt(document.getElementById("s" + i).value) || 0;
-      const totalSeconds = h * 3600 + m * 60 + s;
-      const endAt = Math.floor(Date.now() / 1000) + totalSeconds;
-      const timerRef = ref(db, "sharedTimers/" + name);
-      set(timerRef, { endAt: endAt, running: true });
-    };
+   timerLabels.forEach((label, i) => {
+     const name = timerKeys[i];
+     const isAPC = label.includes("APC");
+     const isShohin = label.includes("商品時間");
+     const isRecap = label.includes("リキャップ");
+     const isComment = label.includes("コメントポーズ");
+     const isNextSeg = label.includes("次セグスタート");
 
-    window.resetTimer = function(name, i) {
-      const timerRef = ref(db, "sharedTimers/" + name);
-      set(timerRef, { endAt: 0, running: false });
-      document.getElementById("display" + i).innerText = "0:00:00";
-      clearInterval(intervals[name]);
-    };
 
-    function updateClockTime() {
-      const now = new Date();
-      const hh = String(now.getHours()).padStart(2, '0');
-      const mm = String(now.getMinutes()).padStart(2, '0');
-      const ss = String(now.getSeconds()).padStart(2, '0');
-      const timeStr = `${hh}:${mm}:${ss}`;
-      const clockEls = document.querySelectorAll(".clock-time");
-      clockEls.forEach(el => {
-        el.innerText = timeStr;
-      });
-    }
-    setInterval(updateClockTime, 1000);
-  </script>
+     const box = document.createElement("div");
+     box.className = "timer-box";
+     box.innerHTML = `
+     <h2 class="${isAPC ? 'apc-title' : isShohin ? 'shohin-title' : isRecap ? 'recap-title' : isComment ? 'comment-title' : isNextSeg ? 'nextseg-title' : ''}">${label}</h2>
+
+     <div class="clock-time">--:--:--</div> <!-- ★追加 -->
+
+       <div id="display${i}" class="display-time">--:--:--</div>
+       <input type="number" id="quick${i}" placeholder="例: 15415" onchange="convertQuick(${i})"> ←まとめて入力<br/>
+       <input type="number" id="h${i}" min="0" value="0"> h
+       <input type="number" id="m${i}" min="0" max="59" value="0"> m
+       <input type="number" id="s${i}" min="0" max="59" value="0"> s <br/>
+       <button onclick="startTimer('${name}', ${i})">スタート</button>
+       <button onclick="resetTimer('${name}', ${i})">リセット</button>
+     `;
+     container.appendChild(box);
+
+     const timerRef = ref(db, "sharedTimers/" + name);
+     onValue(timerRef, (snapshot) => {
+       const data = snapshot.val();
+       if (data) {
+         document.getElementById("display" + i).innerText = formatTime(data.time);
+       }
+     });
+   });
+
+  function formatTime(seconds) {
+ const h = Math.floor(seconds / 3600);
+ const m = Math.floor((seconds % 3600) / 60);
+ const s = seconds % 60;
+
+ const hh = String(h).padStart(1, "0");
+ const mm = String(m).padStart(2, "0");
+ const ss = String(s).padStart(2, "0");
+
+ return `${h}:${mm}:${ss}`;
+}
+
+
+
+   window.startTimer = function (name, i) {
+     const h = parseInt(document.getElementById("h" + i).value) || 0;
+     const m = parseInt(document.getElementById("m" + i).value) || 0;
+     const s = parseInt(document.getElementById("s" + i).value) || 0;
+     let countdown = h * 3600 + m * 60 + s;
+
+     const timerRef = ref(db, "sharedTimers/" + name);
+     clearInterval(intervals[name]);
+
+     document.getElementById("display" + i).innerText = formatTime(countdown);
+
+     set(timerRef, { time: countdown, running: true });
+
+     intervals[name] = setInterval(() => {
+       countdown--;
+
+       
+
+       
+       if (countdown < 0) {
+         clearInterval(intervals[name]);
+         return;
+       }
+       set(timerRef, { time: countdown, running: true });
+     }, 1000);
+   };
+
+   window.resetTimer = function (name, i) {
+     clearInterval(intervals[name]);
+     const h = parseInt(document.getElementById("h" + i).value) || 0;
+     const m = parseInt(document.getElementById("m" + i).value) || 0;
+     const s = parseInt(document.getElementById("s" + i).value) || 0;
+     const totalSeconds = h * 3600 + m * 60 + s;
+     const timerRef = ref(db, "sharedTimers/" + name);
+     set(timerRef, { time: totalSeconds, running: false });
+   };
+
+   window.convertQuick = function (i) {
+     const val = document.getElementById("quick" + i).value.trim();
+     if (!/^[0-9]+$/.test(val)) return;
+     const padded = val.padStart(6, "0");
+     const h = parseInt(padded.slice(0, -4)) || 0;
+     const m = parseInt(padded.slice(-4, -2)) || 0;
+     const s = parseInt(padded.slice(-2)) || 0;
+     document.getElementById("h" + i).value = h;
+     document.getElementById("m" + i).value = m;
+     document.getElementById("s" + i).value = s;
+
+   };
+   window.resetTimer = function (name, i) {
+ clearInterval(intervals[name]);
+
+ // 入力欄をすべて空にする
+ document.getElementById("h" + i).value = "";
+ document.getElementById("m" + i).value = "";
+ document.getElementById("s" + i).value = "";
+ document.getElementById("quick" + i).value = "";
+
+ // タイマーを0秒で止める
+ const timerRef = ref(db, "sharedTimers/" + name);
+ set(timerRef, { time: 0, running: false });
+};
+
+　　
+
+ </script>
 </body>
 </html>
