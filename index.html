@@ -18,7 +18,7 @@
     }
     button {
       background-color: #5485bc;
-      color: #fff;
+      color: #ffffff;
       font-weight: bold;
       border: none;
       border-radius: 5px;
@@ -26,7 +26,7 @@
       transition: background-color 0.3s ease;
     }
     button:hover {
-      background-color: #333;
+      background-color: #333333;
     }
   </style>
 </head>
@@ -51,15 +51,15 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     const intervals = {};
-
-    const timerLabels = [
-      "商品時間", "①コメントポーズ", "②コメントポーズ",
-      "③コメントポーズ", "リキャップまで", "APCまで", "次セグスタートまで"
-    ];
     const timerKeys = ["timer1", "timer2", "timer3", "timer4", "timer5", "timer6", "timer7"];
+    const labels = [
+      "商品時間", "①コメントポーズ", "②コメントポーズ", "③コメントポーズ",
+      "リキャップまで", "APCまで", "次セグスタートまで"
+    ];
+
     const container = document.getElementById("timers");
 
-    timerLabels.forEach((label, i) => {
+    labels.forEach((label, i) => {
       const name = timerKeys[i];
       const box = document.createElement("div");
       box.className = "timer-box";
@@ -77,47 +77,48 @@
       const timerRef = ref(db, "sharedTimers/" + name);
       onValue(timerRef, (snapshot) => {
         const data = snapshot.val();
-        if (!data || !data.endAt) return;
+        if (data && data.endAt && data.running) {
+          if (intervals[name]) clearInterval(intervals[name]);
 
-        clearInterval(intervals[name]);
-
-        intervals[name] = setInterval(() => {
-          const now = Math.floor(Date.now() / 1000);
-          const remaining = Math.max(0, data.endAt - now);
-          document.getElementById("display" + i).innerText = formatTime(remaining);
-        }, 1000);
+          intervals[name] = setInterval(() => {
+            const now = Math.floor(Date.now() / 1000);
+            const remaining = data.endAt - now;
+            if (remaining < 0) {
+              document.getElementById("display" + i).innerText = "0:00:00";
+              clearInterval(intervals[name]);
+              return;
+            }
+            document.getElementById("display" + i).innerText = formatTime(remaining);
+          }, 1000);
+        } else {
+          document.getElementById("display" + i).innerText = "0:00:00";
+        }
       });
     });
+
+    window.startTimer = function(name, i) {
+      const h = parseInt(document.getElementById("h" + i).value) || 0;
+      const m = parseInt(document.getElementById("m" + i).value) || 0;
+      const s = parseInt(document.getElementById("s" + i).value) || 0;
+      const totalSeconds = h * 3600 + m * 60 + s;
+      const endAt = Math.floor(Date.now() / 1000) + totalSeconds;
+      const timerRef = ref(db, "sharedTimers/" + name);
+      set(timerRef, { endAt: endAt, running: true });
+    };
+
+    window.resetTimer = function(name, i) {
+      const timerRef = ref(db, "sharedTimers/" + name);
+      set(timerRef, { endAt: 0, running: false });
+      document.getElementById("display" + i).innerText = "0:00:00";
+      clearInterval(intervals[name]);
+    };
 
     function formatTime(seconds) {
       const h = Math.floor(seconds / 3600);
       const m = Math.floor((seconds % 3600) / 60);
       const s = seconds % 60;
-      return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      return `${h}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
     }
-
-    window.startTimer = function (name, i) {
-      const h = parseInt(document.getElementById("h" + i).value) || 0;
-      const m = parseInt(document.getElementById("m" + i).value) || 0;
-      const s = parseInt(document.getElementById("s" + i).value) || 0;
-      const duration = h * 3600 + m * 60 + s;
-
-      const now = Math.floor(Date.now() / 1000); // UNIX time (秒)
-      const endAt = now + duration;
-
-      const timerRef = ref(db, "sharedTimers/" + name);
-      set(timerRef, { endAt: endAt, running: true });
-    };
-
-    window.resetTimer = function (name, i) {
-      clearInterval(intervals[name]);
-      document.getElementById("display" + i).innerText = "--:--:--";
-      document.getElementById("h" + i).value = "";
-      document.getElementById("m" + i).value = "";
-      document.getElementById("s" + i).value = "";
-      const timerRef = ref(db, "sharedTimers/" + name);
-      set(timerRef, { endAt: 0, running: false });
-    };
   </script>
 </body>
 </html>
