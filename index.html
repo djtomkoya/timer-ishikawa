@@ -154,16 +154,12 @@ setInterval(updateClockTime, 1000);  // 1秒ごとに更新
      container.appendChild(box);
 
      const timerRef = ref(db, "sharedTimers/" + name);
-    
      onValue(timerRef, (snapshot) => {
-  const data = snapshot.val();
-  if (data && data.endAt) {
-    const now = Math.floor(Date.now() / 1000);
-    const remaining = Math.max(data.endAt - now, 0);
-    document.getElementById("display" + i).innerText = formatTime(remaining);
-  }
-});
-
+       const data = snapshot.val();
+       if (data) {
+         document.getElementById("display" + i).innerText = formatTime(data.time);
+       }
+     });
    });
 
   function formatTime(seconds) {
@@ -191,9 +187,7 @@ setInterval(updateClockTime, 1000);  // 1秒ごとに更新
 
      document.getElementById("display" + i).innerText = formatTime(countdown);
 
-     const endAt = Math.floor(Date.now() / 1000) + countdown;
-　　　set(timerRef, { endAt: endAt, running: true });
-
+     set(timerRef, { time: countdown, running: true });
 
      intervals[name] = setInterval(() => {
        countdown--;
