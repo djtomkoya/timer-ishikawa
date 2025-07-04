@@ -96,7 +96,7 @@ button:hover {
 
  <script type="module">
    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
-   import { getDatabase, ref, set, onValue, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js";
+   import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js";
 
    const firebaseConfig = {
      apiKey: "AIzaSyAfWHKmXad82HBw0zU-8k1t5OGKP5zhAdA",
@@ -108,49 +108,60 @@ button:hover {
      messagingSenderId: "367450670827"
    };
 
+
+   function updateClockTime() {
+  const now = new Date();
+  const hh = String(now.getHours()).padStart(2, '0');
+  const mm = String(now.getMinutes()).padStart(2, '0');
+  const ss = String(now.getSeconds()).padStart(2, '0');
+  const timeStr = `${hh}:${mm}:${ss}`;
+  const clockEls = document.querySelectorAll(".clock-time");
+  clockEls.forEach(el => {
+    el.innerText = timeStr;
+  });
+}
+setInterval(updateClockTime, 1000);  // 1秒ごとに更新
+
    const app = initializeApp(firebaseConfig);
    const db = getDatabase(app);
    const intervals = {};
-   const clientId = localStorage.getItem('clientId') || crypto.randomUUID();
-   localStorage.setItem('clientId', clientId);
-
-   const PASSWORD = "1234"; // 任意のパスワード
-
-   function updateClockTime() {
-     const now = new Date();
-     const hh = String(now.getHours()).padStart(2, '0');
-     const mm = String(now.getMinutes()).padStart(2, '0');
-     const ss = String(now.getSeconds()).padStart(2, '0');
-     const timeStr = `${hh}:${mm}:${ss}`;
-     document.querySelectorAll(".clock-time").forEach(el => el.innerText = timeStr);
-   }
-   setInterval(updateClockTime, 1000);
 
    const timerLabels = [
-     "商品時間", "①コメントポーズ", "②コメントポーズ", "③コメントポーズ",
-     "リキャップまで", "APCまで", "次セグスタートまで", "エンディングまで", "汎用タイマー"
+     "商品時間",
+     "①コメントポーズ",
+     "②コメントポーズ",
+     "③コメントポーズ",
+     "リキャップまで",
+     "APCまで",
+     "次セグスタートまで",
+     "エンディングまで",  // ←追加
+ 　　 "汎用タイマー"  // ←追加
    ];
+
    const timerKeys = [
-     "timer1", "timer2", "timer3", "timer4", "timer5", "timer6", "timer7", "timer8", "timer9"
+     "timer1", "timer2", "timer3", "timer4", "timer5", "timer6", "timer7","timer8","timer9"
    ];
 
    const container = document.getElementById("timers");
 
    timerLabels.forEach((label, i) => {
      const name = timerKeys[i];
-     const titleClass = label.includes("APC") ? 'apc-title' :
-       label.includes("商品") ? 'shohin-title' :
-       label.includes("リキャップ") ? 'recap-title' :
-       label.includes("コメント") ? 'comment-title' :
-       label.includes("次セグ") ? 'nextseg-title' :
-       label.includes("エンディング") ? 'Ending-title' :
-       label.includes("汎用") ? 'Hanyou-title' : '';
+     const isAPC = label.includes("APC");
+     const isShohin = label.includes("商品時間");
+     const isRecap = label.includes("リキャップ");
+     const isComment = label.includes("コメントポーズ");
+     const isNextSeg = label.includes("次セグスタート");
+      const isEnding = label.includes("エンディング");
+       const isHanyou= label.includes("汎用");
+
 
      const box = document.createElement("div");
      box.className = "timer-box";
      box.innerHTML = `
-       <h2 class="${titleClass}">${label}</h2>
-       <div class="clock-time">--:--:--</div>
+     <h2 class="${isAPC ? 'apc-title' : isShohin ? 'shohin-title' : isRecap ? 'recap-title' : isComment ? 'comment-title' : isNextSeg ? 'nextseg-title' : isEnding ? 'Ending-title' : isHanyou ? 'Hanyou-title' : ''}">${label}</h2>
+
+     <div class="clock-time">--:--:--</div> <!-- ★追加 -->
+
        <div id="display${i}" class="display-time">--:--:--</div>
        <input type="number" id="quick${i}" placeholder="例: 15415" onchange="convertQuick(${i})"> ←まとめて入力<br/>
        <input type="number" id="h${i}" min="0" value="0"> h
@@ -165,51 +176,60 @@ button:hover {
      onValue(timerRef, (snapshot) => {
        const data = snapshot.val();
        if (data) {
-         const now = Date.now();
-         const remaining = Math.max(0, Math.floor((data.endAt - now) / 1000));
-         document.getElementById("display" + i).innerText = formatTime(remaining);
+         document.getElementById("display" + i).innerText = formatTime(data.time);
        }
      });
    });
 
-   function formatTime(seconds) {
-     const h = Math.floor(seconds / 3600);
-     const m = Math.floor((seconds % 3600) / 60);
-     const s = seconds % 60;
-     return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-   }
+  function formatTime(seconds) {
+ const h = Math.floor(seconds / 3600);
+ const m = Math.floor((seconds % 3600) / 60);
+ const s = seconds % 60;
 
-   window.startTimer = function(name, i) {
+ const hh = String(h).padStart(1, "0");
+ const mm = String(m).padStart(2, "0");
+ const ss = String(s).padStart(2, "0");
+
+ return `${h}:${mm}:${ss}`;
+}
+
+
+
+   window.startTimer = function (name, i) {
      const h = parseInt(document.getElementById("h" + i).value) || 0;
      const m = parseInt(document.getElementById("m" + i).value) || 0;
      const s = parseInt(document.getElementById("s" + i).value) || 0;
-     const countdown = h * 3600 + m * 60 + s;
-     const endAt = Date.now() + countdown * 1000;
-     const timerRef = ref(db, "sharedTimers/" + name);
+     let countdown = h * 3600 + m * 60 + s;
 
-     set(timerRef, { endAt, owner: clientId });
-     
-     document.getElementById("display" + i).innerText = formatTime(countdown);  //追加//
-};
-   
-
-   window.resetTimer = function(name, i) {
      const timerRef = ref(db, "sharedTimers/" + name);
-     onValue(timerRef, (snapshot) => {
-       const data = snapshot.val();
-       if (!data || data.owner !== clientId) {
-         const pw = prompt("パスワード");
-         if (pw !== PASSWORD) {
-           alert("パスワードが違います。");
-           return;
-         }
+     clearInterval(intervals[name]);
+
+     document.getElementById("display" + i).innerText = formatTime(countdown);
+
+     set(timerRef, { time: countdown, running: true });
+
+     intervals[name] = setInterval(() => {
+       countdown--;
+
+       
+
+       
+       if (countdown < 0) {
+         clearInterval(intervals[name]);
+         return;
        }
-       document.getElementById("h" + i).value = "";
-       document.getElementById("m" + i).value = "";
-       document.getElementById("s" + i).value = "";
-       document.getElementById("quick" + i).value = "";
-       set(timerRef, { endAt: 0, owner: data?.owner || clientId });
-     }, { onlyOnce: true });
+       set(timerRef, { time: countdown, running: true });
+     }, 1000);
+   };
+
+   window.resetTimer = function (name, i) {
+     clearInterval(intervals[name]);
+     const h = parseInt(document.getElementById("h" + i).value) || 0;
+     const m = parseInt(document.getElementById("m" + i).value) || 0;
+     const s = parseInt(document.getElementById("s" + i).value) || 0;
+     const totalSeconds = h * 3600 + m * 60 + s;
+     const timerRef = ref(db, "sharedTimers/" + name);
+     set(timerRef, { time: totalSeconds, running: false });
    };
 
    window.convertQuick = function (i) {
@@ -222,7 +242,24 @@ button:hover {
      document.getElementById("h" + i).value = h;
      document.getElementById("m" + i).value = m;
      document.getElementById("s" + i).value = s;
+
    };
+   window.resetTimer = function (name, i) {
+ clearInterval(intervals[name]);
+
+ // 入力欄をすべて空にする
+ document.getElementById("h" + i).value = "";
+ document.getElementById("m" + i).value = "";
+ document.getElementById("s" + i).value = "";
+ document.getElementById("quick" + i).value = "";
+
+ // タイマーを0秒で止める
+ const timerRef = ref(db, "sharedTimers/" + name);
+ set(timerRef, { time: 0, running: false });
+};
+
+　　
+
  </script>
 </body>
 </html>
