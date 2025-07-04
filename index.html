@@ -173,7 +173,7 @@ button:hover {
       const h = parseInt(document.getElementById("h" + i).value) || 0;
       const m = parseInt(document.getElementById("m" + i).value) || 0;
       const s = parseInt(document.getElementById("s" + i).value) || 0;
-      const totalSeconds = h * 3600 + m * 60 + s　+ 1;
+      const totalSeconds = h * 3600 + m * 60 + s;
       const endAt = Math.floor(Date.now() / 1000) + totalSeconds;
       const timerRef = ref(db, "sharedTimers/" + name);
       set(timerRef, { endAt: endAt, running: true });
