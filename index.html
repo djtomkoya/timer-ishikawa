@@ -134,47 +134,21 @@ button:hover {
    };
 
 
-setInterval(updateClockTime, 1000);
-syncServerTimeOffset();
-   
-setInterval(updateClockTime, 1000);  // 1秒ごとに更新
-
-  let timeOffset = 0;
-
-   const app = initializeApp(firebaseConfig);
-   const db = getDatabase(app);
-　
- 
-
-   // ❶ サーバーとの時刻差分を取得
-function syncServerTimeOffset() {
-  const offsetRef = ref(db, ".info/serverTimeOffset");
-  onValue(offsetRef, (snapshot) => {
-    if (snapshot.exists()) {
-      timeOffset = snapshot.val();
-      console.log("時刻補正: ", timeOffset, "ms");
-    } else {
-      console.warn("サーバーとの時刻差が取得できませんでした");
-    }
-  });
-}
-syncServerTimeOffset(); // 初期化後に呼び出す
-
-// ❷ 時計更新（差分補正あり）
-function updateClockTime() {
-  const correctedNow = new Date(Date.now() + timeOffset);
-  const hh = String(correctedNow.getHours()).padStart(2, '0');
-  const mm = String(correctedNow.getMinutes()).padStart(2, '0');
-  const ss = String(correctedNow.getSeconds()).padStart(2, '0');
+   function updateClockTime() {
+  const now = new Date();
+  const hh = String(now.getHours()).padStart(2, '0');
+  const mm = String(now.getMinutes()).padStart(2, '0');
+  const ss = String(now.getSeconds()).padStart(2, '0');
   const timeStr = `${hh}:${mm}:${ss}`;
-  document.querySelectorAll(".clock-time").forEach(el => {
+  const clockEls = document.querySelectorAll(".clock-time");
+  clockEls.forEach(el => {
     el.innerText = timeStr;
   });
 }
-setInterval(updateClockTime, 1000);
+setInterval(updateClockTime, 1000);  // 1秒ごとに更新
 
-
-
+   const app = initializeApp(firebaseConfig);
+   const db = getDatabase(app);
    const intervals = {};
 
    const timerLabels = [
