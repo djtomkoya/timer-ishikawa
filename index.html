@@ -288,18 +288,19 @@ document.getElementById("scrollTopBtn").onclick = () => {
 };
 
 document.getElementById("scrollBottomBtn").onclick = () => {
-  const recap = document.getElementById("recapTimer");
-  if (recap) {
-    recap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const recapElement = document.getElementById("recapTimer");
+  if (recapElement) {
+    recapElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 };
+
 
 
 　　
  </script>
 
- <button id="scrollTopBtn">↑ 商品時間へ</button>
-<button id="scrollBottomBtn">↓ リキャップへ</button>
+ <button id="scrollTopBtn">↑ 商品時間</button>
+<button id="scrollBottomBtn">↓ リキャップ</button>
 
 </body>
 </html>
