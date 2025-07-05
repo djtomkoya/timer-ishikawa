@@ -167,10 +167,11 @@ function updateClockTime() {
   document.querySelectorAll(".clock-time").forEach(el => {
     el.innerText = timeStr;
   });
+
+   requestAnimationFrame(updateClockTime); // ←次のフレームで再実行
 }
-requestAnimationFrame(updateClockTime);
-
-
+　 
+  requestAnimationFrame(updateClockTime);
 
    const timerLabels = [
      "商品時間",
