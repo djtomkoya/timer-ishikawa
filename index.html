@@ -183,7 +183,7 @@ setInterval(updateClockTime, 1000);  // 1秒ごとに更新
      const box = document.createElement("div");
      box.className = "timer-box";
      box.innerHTML = `
-     <h2 class="${isAPC ? 'apc-title' : isShohin ? 'shohin-title' : isRecap ? 'recap-title' : isComment ? 'comment-title' : isNextSeg ? 'nextseg-title' : isEnding ? 'Ending-title' : isHanyou ? 'Hanyou-title' : ''}"　${isRecap ? 'id="recapTimer"' : ''}>${label}</h2>
+     <h2 class="${isAPC ? 'apc-title' : isShohin ? 'shohin-title' : isRecap ? 'recap-title' : isComment ? 'comment-title' : isNextSeg ? 'nextseg-title' : isEnding ? 'Ending-title' : isHanyou ? 'Hanyou-title' : ''}"${isRecap ? 'id="recapTimer"' : ''}>${label}</h2>
 
      <div class="clock-time">--:--:--</div> <!-- ★追加 -->
 
