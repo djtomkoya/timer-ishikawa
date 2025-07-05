@@ -226,6 +226,7 @@ function updateClockTime() {
          document.getElementById("display" + i).innerText = formatTime(data.time);
        }
      });
+     setupEnterKeyToStart(i, name); // ← ここに入れる
    });
 
   function formatTime(seconds) {
@@ -284,6 +285,24 @@ function updateClockTime() {
      document.getElementById("s" + i).value = s;
 
    };
+
+
+   // 共通：Enterキーでスタート発火
+function setupEnterKeyToStart(i, name) {
+  const quick = document.getElementById(`quick${i}`);
+  const h = document.getElementById(`h${i}`);
+  const m = document.getElementById(`m${i}`);
+  const s = document.getElementById(`s${i}`);
+
+  [quick, h, m, s].forEach(input => {
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        startTimer(name, i);
+      }
+    });
+  });
+}
+
    window.resetTimer = function (name, i) {
  clearInterval(intervals[name]);
 
