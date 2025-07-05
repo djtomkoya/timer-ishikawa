@@ -119,6 +119,10 @@ button:hover {
 
  <div id="timers"></div>
 
+
+ <button id="scrollTopBtn">↑ 商品</button>
+ <button id="scrollBottomBtn">↓ Recap</button>
+
  <script type="module">
    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
    import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js";
@@ -133,23 +137,39 @@ button:hover {
      messagingSenderId: "367450670827"
    };
 
-
-   function updateClockTime() {
-  const now = new Date();
-  const hh = String(now.getHours()).padStart(2, '0');
-  const mm = String(now.getMinutes()).padStart(2, '0');
-  const ss = String(now.getSeconds()).padStart(2, '0');
-  const timeStr = `${hh}:${mm}:${ss}`;
-  const clockEls = document.querySelectorAll(".clock-time");
-  clockEls.forEach(el => {
-    el.innerText = timeStr;
-  });
-}
-setInterval(updateClockTime, 1000);  // 1秒ごとに更新
+  
 
    const app = initializeApp(firebaseConfig);
    const db = getDatabase(app);
-   const intervals = {};
+　
+ 　let timeOffset = 0;
+ 　const intervals = {};
+
+   // ❶ サーバーとの時刻差分を取得
+function syncServerTimeOffset() {
+  const offsetRef = ref(db, ".info/serverTimeOffset");
+  onValue(offsetRef, (snapshot) => {
+    if (snapshot.exists()) {
+      timeOffset = snapshot.val();
+      console.log("時刻補正: ", timeOffset, "ms");
+    }
+  });
+}
+syncServerTimeOffset(); // 初期化後に呼び出す
+
+// ❷ 時計更新（差分補正あり）
+function updateClockTime() {
+  const correctedNow = new Date(Date.now() + timeOffset);
+  const hh = String(correctedNow.getHours()).padStart(2, '0');
+  const mm = String(correctedNow.getMinutes()).padStart(2, '0');
+  const ss = String(correctedNow.getSeconds()).padStart(2, '0');
+  const timeStr = `${hh}:${mm}:${ss}`;
+  document.querySelectorAll(".clock-time").forEach(el => {
+    el.innerText = timeStr;
+  });
+}
+setInterval(updateClockTime, 1000);
+
 
    const timerLabels = [
      "商品時間",
@@ -207,16 +227,11 @@ setInterval(updateClockTime, 1000);  // 1秒ごとに更新
    });
 
   function formatTime(seconds) {
- const h = Math.floor(seconds / 3600);
- const m = Math.floor((seconds % 3600) / 60);
- const s = seconds % 60;
-
- const hh = String(h).padStart(1, "0");
- const mm = String(m).padStart(2, "0");
- const ss = String(s).padStart(2, "0");
-
- return `${h}:${mm}:${ss}`;
-}
+      const h = Math.floor(seconds / 3600);
+      const m = Math.floor((seconds % 3600) / 60);
+      const s = seconds % 60;
+      return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
 
 
 
@@ -235,8 +250,6 @@ setInterval(updateClockTime, 1000);  // 1秒ごとに更新
 
      intervals[name] = setInterval(() => {
        countdown--;
-
-       
 
        
        if (countdown < 0) {
@@ -299,8 +312,6 @@ document.getElementById("scrollBottomBtn").onclick = () => {
 　　
  </script>
 
- <button id="scrollTopBtn">↑ 商品</button>
-<button id="scrollBottomBtn">↓ Recap</button>
 
 </body>
 </html>
