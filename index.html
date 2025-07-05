@@ -133,14 +133,27 @@ button:hover {
      messagingSenderId: "367450670827"
    };
 
-let timeOffset = 0;
 
+setInterval(updateClockTime, 1000);
+syncServerTimeOffset();
+   
+setInterval(updateClockTime, 1000);  // 1秒ごとに更新
+
+   const app = initializeApp(firebaseConfig);
+   const db = getDatabase(app);
+　
+   let timeOffset = 0;
+
+   // ❶ サーバーとの時刻差分を取得
 function syncServerTimeOffset() {
-  const offsetRef = ref(getDatabase(), ".info/serverTimeOffset");
+  const offsetRef = ref(db, ".info/serverTimeOffset");
   onValue(offsetRef, (snapshot) => {
     timeOffset = snapshot.val() || 0;
   });
 }
+syncServerTimeOffset(); // 初期化後に呼び出す
+
+// ❷ 時計更新（差分補正あり）
 function updateClockTime() {
   const correctedNow = new Date(Date.now() + timeOffset);
   const hh = String(correctedNow.getHours()).padStart(2, '0');
@@ -151,14 +164,12 @@ function updateClockTime() {
     el.innerText = timeStr;
   });
 }
-
 setInterval(updateClockTime, 1000);
-syncServerTimeOffset();
-   
-setInterval(updateClockTime, 1000);  // 1秒ごとに更新
 
-   const app = initializeApp(firebaseConfig);
-   const db = getDatabase(app);
+
+
+
+
    const intervals = {};
 
    const timerLabels = [
