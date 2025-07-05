@@ -133,18 +133,28 @@ button:hover {
      messagingSenderId: "367450670827"
    };
 
+let timeOffset = 0;
 
-   function updateClockTime() {
-  const now = new Date();
-  const hh = String(now.getHours()).padStart(2, '0');
-  const mm = String(now.getMinutes()).padStart(2, '0');
-  const ss = String(now.getSeconds()).padStart(2, '0');
+function syncServerTimeOffset() {
+  const offsetRef = ref(getDatabase(), ".info/serverTimeOffset");
+  onValue(offsetRef, (snapshot) => {
+    timeOffset = snapshot.val() || 0;
+  });
+}
+function updateClockTime() {
+  const correctedNow = new Date(Date.now() + timeOffset);
+  const hh = String(correctedNow.getHours()).padStart(2, '0');
+  const mm = String(correctedNow.getMinutes()).padStart(2, '0');
+  const ss = String(correctedNow.getSeconds()).padStart(2, '0');
   const timeStr = `${hh}:${mm}:${ss}`;
-  const clockEls = document.querySelectorAll(".clock-time");
-  clockEls.forEach(el => {
+  document.querySelectorAll(".clock-time").forEach(el => {
     el.innerText = timeStr;
   });
 }
+
+setInterval(updateClockTime, 1000);
+syncServerTimeOffset();
+   
 setInterval(updateClockTime, 1000);  // 1秒ごとに更新
 
    const app = initializeApp(firebaseConfig);
