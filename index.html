@@ -78,7 +78,7 @@ button:hover {
 }
 .clock-time {
   font-size: 60px;
-  color: #070607;
+  color: #0a080a;
   margin-bottom: 10px;
   font-weight: bold;
 }
@@ -100,7 +100,7 @@ button:hover {
 }
 
 #scrollTopBtn:hover, #scrollBottomBtn:hover {
-  background-color: #000;
+  background-color: #373333;
 }
 
 #scrollTopBtn {
@@ -183,7 +183,7 @@ setInterval(updateClockTime, 1000);  // 1秒ごとに更新
      const box = document.createElement("div");
      box.className = "timer-box";
      box.innerHTML = `
-     <h2 class="${isAPC ? 'apc-title' : isShohin ? 'shohin-title' : isRecap ? 'recap-title' : isComment ? 'comment-title' : isNextSeg ? 'nextseg-title' : isEnding ? 'Ending-title' : isHanyou ? 'Hanyou-title' : ''}">${label}</h2>
+     <h2 class="${isAPC ? 'apc-title' : isShohin ? 'shohin-title' : isRecap ? 'recap-title' : isComment ? 'comment-title' : isNextSeg ? 'nextseg-title' : isEnding ? 'Ending-title' : isHanyou ? 'Hanyou-title' : ''}"　${isRecap ? 'id="recapTimer"' : ''}>${label}</h2>
 
      <div class="clock-time">--:--:--</div> <!-- ★追加 -->
 
@@ -288,14 +288,18 @@ document.getElementById("scrollTopBtn").onclick = () => {
 };
 
 document.getElementById("scrollBottomBtn").onclick = () => {
-  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+  const recap = document.getElementById("recapTimer");
+  if (recap) {
+    recap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 };
+
 
 　　
  </script>
 
- <button id="scrollTopBtn">↑ 上へ</button>
-<button id="scrollBottomBtn">↓ 下へ</button>
+ <button id="scrollTopBtn">↑ 商品時間へ</button>
+<button id="scrollBottomBtn">↓ リキャップへ</button>
 
 </body>
 </html>
