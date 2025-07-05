@@ -85,6 +85,31 @@ button:hover {
 .timer-box:last-child {
  margin-bottom: 70px;
   }
+#scrollTopBtn, #scrollBottomBtn {
+  position: fixed;
+  right: 30px;
+  padding: 15px;
+  font-size: 20px;
+  border: none;
+  border-radius: 10px;
+  background-color: #555;
+  color: white;
+  cursor: pointer;
+  z-index: 1000;
+  opacity: 0.8;
+}
+
+#scrollTopBtn:hover, #scrollBottomBtn:hover {
+  background-color: #000;
+}
+
+#scrollTopBtn {
+  bottom: 100px;
+}
+
+#scrollBottomBtn {
+  bottom: 30px;
+}
 
  </style>
 </head>
@@ -258,8 +283,19 @@ setInterval(updateClockTime, 1000);  // 1秒ごとに更新
  set(timerRef, { time: 0, running: false });
 };
 
-　　
+document.getElementById("scrollTopBtn").onclick = () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
 
+document.getElementById("scrollBottomBtn").onclick = () => {
+  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+};
+
+　　
  </script>
+
+ <button id="scrollTopBtn">↑ 上へ</button>
+<button id="scrollBottomBtn">↓ 下へ</button>
+
 </body>
 </html>
