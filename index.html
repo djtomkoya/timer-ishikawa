@@ -168,7 +168,8 @@ function updateClockTime() {
     el.innerText = timeStr;
   });
 }
-setInterval(updateClockTime, 1000);
+requestAnimationFrame(updateClockTime);
+
 
 
    const timerLabels = [
