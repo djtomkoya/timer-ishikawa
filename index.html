@@ -307,7 +307,23 @@ function updateClockTime() {
   currentSec = isPlus ? currentSec + addSeconds : Math.max(0, currentSec - addSeconds);
 
   const timerRef = ref(db, "sharedTimers/" + name);
-  set(timerRef, { time: currentSec, running: true });  // 上書き
+  set(timerRef, { time: currentSec, running: true });  //firebaseへ反映　上書き
+
+ //  ローカルの countdown も更新（重要！）
+  if (intervals[name] !== undefined) {
+    // 差し替える
+    clearInterval(intervals[name]);
+    let countdown = currentSec;
+    intervals[name] = setInterval(() => {
+      countdown--;
+      if (countdown < 0) {
+        clearInterval(intervals[name]);
+        return;
+      }
+      set(timerRef, { time: countdown, running: true });
+    }, 1000);
+  }
+
 };
 
 
