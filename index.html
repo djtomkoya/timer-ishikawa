@@ -216,12 +216,6 @@ function updateClockTime() {
        <input type="number" id="s${i}" min="0" max="59" value="0"> s <br/>
        <button onclick="startTimer('${name}', ${i})">スタート</button>
        <button onclick="resetTimer('${name}', ${i})">リセット</button>
-
-       <!-- プラスマイナスボタン -->
-  <br/>
-  <input type="number" id="changeSec${i}" value="15" style="width: 80px;"> 秒
-  <button onclick="changeTime('${name}', ${i}, true)">➕</button>
-  <button onclick="changeTime('${name}', ${i}, false)">➖</button>
      `;
      container.appendChild(box);
 
@@ -232,7 +226,6 @@ function updateClockTime() {
          document.getElementById("display" + i).innerText = formatTime(data.time);
        }
      });
-     setupEnterKeyToStart(i, name); // ← ここに入れる
    });
 
   function formatTime(seconds) {
@@ -291,59 +284,6 @@ function updateClockTime() {
      document.getElementById("s" + i).value = s;
 
    };
-   //加算減算ボタン
-
-   window.changeTime = function (name, i, isPlus) {
-  const input = document.getElementById("changeSec" + i);
-  const addSeconds = parseInt(input.value, 10) || 0;
-  if (addSeconds <= 0) return;
-
-  // 表示を解析して現在の秒数を計算
-  const displayText = document.getElementById("display" + i).innerText;
-  const [h, m, s] = displayText.split(':').map(Number);
-  let currentSec = h * 3600 + m * 60 + s;
-
-  // 加減算して0未満にならないように
-  currentSec = isPlus ? currentSec + addSeconds : Math.max(0, currentSec - addSeconds);
-
-  const timerRef = ref(db, "sharedTimers/" + name);
-  set(timerRef, { time: currentSec, running: true });  //firebaseへ反映　上書き
-
- //  ローカルの countdown も更新（重要！）
-  if (intervals[name] !== undefined) {
-    // 差し替える
-    clearInterval(intervals[name]);
-    let countdown = currentSec;
-    intervals[name] = setInterval(() => {
-      countdown--;
-      if (countdown < 0) {
-        clearInterval(intervals[name]);
-        return;
-      }
-      set(timerRef, { time: countdown, running: true });
-    }, 1000);
-  }
-
-};
-
-
-
-   // 共通：Enterキーでスタート発火
-function setupEnterKeyToStart(i, name) {
-  const quick = document.getElementById(`quick${i}`);
-  const h = document.getElementById(`h${i}`);
-  const m = document.getElementById(`m${i}`);
-  const s = document.getElementById(`s${i}`);
-
-  [quick, h, m, s].forEach(input => {
-    input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        startTimer(name, i);
-      }
-    });
-  });
-}
-
    window.resetTimer = function (name, i) {
  clearInterval(intervals[name]);
 
