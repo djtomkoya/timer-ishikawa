@@ -1,40 +1,41 @@
 <!DOCTYPE html>
 <html>
 <head>
- <title>石川中継タイマー</title>
+  <title>石川中継タイマー</title>
+  
 </head>
- <style>
+<style>
    body { font-family: sans-serif; text-align: center; margin-top: 40px; }
    .timer-box {
-     border: 1px solid #ccc; margin: 20px auto; padding: 10px; width: 950px; border-radius: 10px;
+     border: 1px solid #ccc; margin: 20px auto; padding: 10px; width: 1000px; border-radius: 10px;
    }
    h2 { margin-bottom: 10px; }
    input, button { font-size: 30px; margin: 5px; padding: 5px 10px; }
    input[type="number"] { width: 150px; text-align: right; }
  .display-time {
-     font-size: 200px;
+     font-size: 210px;
      font-weight: bold;
      color: #f94903;
      margin-bottom: 15px;
    }
 
 .apc-title { color: rgb(232, 3, 3); font-size: 40px;
-   font-size: 80px;
+   font-size: 95px;
  font-weight: bold;
  font-family: Arial, Helvetica, sans-serif;
- text-shadow: 2px 2px 5px #aaa;}
+ text-shadow: 3px 3px 6px #aaa;}
 
 .shohin-title {
- color: #0080ff;
- font-size: 70px;
+ color: #0077ee;
+ font-size: 90px;
  font-weight: bold;
  font-family:Arial, Helvetica, sans-serif;
- text-shadow: 2px 2px 5px #aaa;
+ text-shadow: 3px 3px 6px #aaa;
 
 }
 .recap-title {
  color: #003937;      /* オレンジっぽい派手な色 */
- font-size: 70px;
+ font-size: 80px;
  font-weight: bold;
  text-shadow: 2px 2px 5px #aaa;
  font-family: 'Arial Black', sans-serif;
@@ -100,6 +101,36 @@ button:hover {
   opacity: 0.8;
 }
 
+.adjust-buttons {
+  font-size: 40px;
+  padding: 10px 20px;
+  margin: 5px;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.adjust-plus {
+  background-color: #f44336;  /* 赤 */
+  color: white;
+}
+
+.adjust-minus {
+  background-color: #35f33c;  /* 緑 */
+  color: white;
+}
+
+.adjust-plus:hover {
+  background-color: #a63229;
+}
+
+.adjust-minus:hover {
+  background-color: #24a429;
+}
+
+
 #scrollTopBtn:hover, #scrollBottomBtn:hover {
   background-color: #4e5a46;
 }
@@ -114,32 +145,38 @@ button:hover {
 
  </style>
 
-
 <body>
- <h1>石川中継タイマー</h1>
+  <h1>石川中継タイマー</h1>
 
- <div id="timers"></div>
+  <div id="timers"></div>
 
 
  <button id="scrollTopBtn">↑ 商品</button>
  <button id="scrollBottomBtn">↓ Recap</button>
-
+ 
 <script src="firebase-config.js"></script>
-
- <script type="module">
-   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
-   import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js";
-
-   const firebaseConfig = window.firebaseConfig;  
-     
-
   
+  <script type="module">
+//オーナー処理をFirebaseに保存
+let deviceId = localStorage.getItem("deviceId");
+if (!deviceId) {
+  deviceId = crypto.randomUUID();
+  localStorage.setItem("deviceId", deviceId);
+}
+  
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+  import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+ 
+    
+  const firebaseConfig = window.firebaseConfig;  
+ 
 
-   const app = initializeApp(firebaseConfig);
-   const db = getDatabase(app);
-　
- 　let timeOffset = 0;
- 　const intervals = {};
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  let timeOffset = 0;
+  const intervals = {};
 
    // ❶ サーバーとの時刻差分を取得
 function syncServerTimeOffset() {
@@ -164,7 +201,7 @@ function updateClockTime() {
     el.innerText = timeStr;
   });
 
-   requestAnimationFrame(updateClockTime); // ←次のフレームで再実行
+  requestAnimationFrame(updateClockTime); // ←次のフレームで再実行
 }
 　 
   requestAnimationFrame(updateClockTime);
@@ -212,16 +249,33 @@ function updateClockTime() {
        <input type="number" id="s${i}" min="0" max="59" value="0"> s <br/>
        <button onclick="startTimer('${name}', ${i})">スタート</button>
        <button onclick="resetTimer('${name}', ${i})">リセット</button>
+       
+
+       <input type="number" id="adjust${i}" value="15" style="width: 80px; font-size: 24px;"> 秒
+      <button class="adjust-buttons adjust-plus" onclick="adjustTime('${name}', ${i}, true)">＋</button>
+<button class="adjust-buttons adjust-minus" onclick="adjustTime('${name}', ${i}, false)">−</button>
+
+
      `;
      container.appendChild(box);
 
      const timerRef = ref(db, "sharedTimers/" + name);
-     onValue(timerRef, (snapshot) => {
-       const data = snapshot.val();
-       if (data) {
+     // ★ここに追加！ボタンの有効/無効を制御するonValue
+  onValue(timerRef, (snapshot) => {
+    const data = snapshot.val();
+    if (!data) return;
+
          document.getElementById("display" + i).innerText = formatTime(data.time);
-       }
-     });
+         // 自分がオーナーか判定してボタン制御
+    const isOwner = !data.owner || data.owner === deviceId;
+    const box = container.children[i];
+    box.querySelector("button:nth-of-type(1)").disabled = !isOwner; // スタート
+    box.querySelector("button:nth-of-type(2)").disabled = !isOwner; // リセット
+    box.querySelector("button:nth-of-type(3)").disabled = !isOwner; // ＋
+    box.querySelector("button:nth-of-type(4)").disabled = !isOwner; // −
+  });
+       
+     
      setupEnterKeyToStart(i, name); // ← これを追加
 
    });
@@ -233,32 +287,48 @@ function updateClockTime() {
       return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
     }
 
+    window.startTimer = function (name, i) {
+  const h = parseInt(document.getElementById("h" + i).value) || 0;
+  const m = parseInt(document.getElementById("m" + i).value) || 0;
+  const s = parseInt(document.getElementById("s" + i).value) || 0;
+  const totalSeconds = h * 3600 + m * 60 + s;
+
+  if (totalSeconds <= 0) return;  // ★← 追加：0秒以下なら無視
+
+  const timerRef = ref(db, "sharedTimers/" + name);
+  clearInterval(intervals[name]); // 古いインターバルを停止
+
+  set(timerRef, { time: totalSeconds, running: true, owner: deviceId });
 
 
-   window.startTimer = function (name, i) {
-     const h = parseInt(document.getElementById("h" + i).value) || 0;
-     const m = parseInt(document.getElementById("m" + i).value) || 0;
-     const s = parseInt(document.getElementById("s" + i).value) || 0;
-     let countdown = h * 3600 + m * 60 + s;
+  
+  // 1秒ごとに、Firebaseの最新値を取得して1減らして保存
+  intervals[name] = setInterval(() => {
+    onValue(timerRef, (snapshot) => {
+      const data = snapshot.val();
+      if (!data || !data.running) {
+        clearInterval(intervals[name]);
+        return;
+      }
 
-     const timerRef = ref(db, "sharedTimers/" + name);
-     clearInterval(intervals[name]);
+      let newTime = data.time - 1;
+      if (newTime < 0) {
+        clearInterval(intervals[name]);
+        newTime = 0;
+      }
 
-     document.getElementById("display" + i).innerText = formatTime(countdown);
+      set(timerRef, {
+  time: newTime,
+  running: newTime > 0,
+  owner: newTime === 0 ? null : data.owner  // 0秒になったらownerを消す
+});
 
-     set(timerRef, { time: countdown, running: true });
-
-     intervals[name] = setInterval(() => {
-       countdown--;
+    }, { onlyOnce: true });  // 毎秒1回だけ値を読む
+  }, 1000);
+};
 
        
-       if (countdown < 0) {
-         clearInterval(intervals[name]);
-         return;
-       }
-       set(timerRef, { time: countdown, running: true });
-     }, 1000);
-   };
+       
 
    window.resetTimer = function (name, i) {
      clearInterval(intervals[name]);
@@ -269,6 +339,24 @@ function updateClockTime() {
      const timerRef = ref(db, "sharedTimers/" + name);
      set(timerRef, { time: totalSeconds, running: false });
    };
+
+   window.adjustTime = function (name, i, isAdd) {
+  const adjustInput = document.getElementById(`adjust${i}`);
+  const adjustSeconds = parseInt(adjustInput.value) || 0;
+  const timerRef = ref(db, "sharedTimers/" + name);
+
+  onValue(timerRef, (snapshot) => {
+    const data = snapshot.val();
+    if (!data) return;
+
+    let newTime = isAdd ? data.time + adjustSeconds : data.time - adjustSeconds;
+    if (newTime < 0) newTime = 0;
+    //
+    set(timerRef, { time: newTime, running: true, owner: deviceId });
+
+  }, { onlyOnce: true });  // 1回だけ取得して更新
+};
+
 
    window.convertQuick = function (i) {
      const val = document.getElementById("quick" + i).value.trim();
@@ -325,10 +413,6 @@ document.getElementById("scrollBottomBtn").onclick = () => {
 };
 
 
-
-　　
- </script>
-
-
+</script>
 </body>
 </html>
