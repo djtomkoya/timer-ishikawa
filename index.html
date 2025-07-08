@@ -327,18 +327,6 @@ function updateClockTime() {
   }, 1000);
 };
 
-       
-       
-
-   window.resetTimer = function (name, i) {
-     clearInterval(intervals[name]);
-     const h = parseInt(document.getElementById("h" + i).value) || 0;
-     const m = parseInt(document.getElementById("m" + i).value) || 0;
-     const s = parseInt(document.getElementById("s" + i).value) || 0;
-     const totalSeconds = h * 3600 + m * 60 + s;
-     const timerRef = ref(db, "sharedTimers/" + name);
-     set(timerRef, { time: totalSeconds, running: false });
-   };
 
    window.adjustTime = function (name, i, isAdd) {
   const adjustInput = document.getElementById(`adjust${i}`);
