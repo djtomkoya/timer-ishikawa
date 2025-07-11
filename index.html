@@ -157,6 +157,7 @@ button:hover {
 <script src="firebase-config.js"></script>
   
   <script type="module">
+
 //オーナー処理をFirebaseに保存
 let deviceId = localStorage.getItem("deviceId");
 if (!deviceId) {
@@ -165,7 +166,7 @@ if (!deviceId) {
 }
   
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
-  import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+  import { getDatabase, ref, set, onValue, update } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
  
     
   const firebaseConfig = window.firebaseConfig;  
@@ -247,13 +248,13 @@ function updateClockTime() {
        <input type="number" id="h${i}" min="0" value="0"> h
        <input type="number" id="m${i}" min="0" max="59" value="0"> m
        <input type="number" id="s${i}" min="0" max="59" value="0"> s <br/>
-       <button onclick="startTimer('${name}', ${i})">スタート</button>
-       <button onclick="resetTimer('${name}', ${i})">リセット</button>
        
+       <button id="start${i}" onclick="startTimer('${name}', ${i})">スタート</button>
+  <button id="reset${i}" onclick="resetTimer('${name}', ${i})">リセット</button>
 
-       <input type="number" id="adjust${i}" value="15" style="width: 80px; font-size: 24px;"> 秒
-      <button class="adjust-buttons adjust-plus" onclick="adjustTime('${name}', ${i}, true)">＋</button>
-<button class="adjust-buttons adjust-minus" onclick="adjustTime('${name}', ${i}, false)">−</button>
+  <input type="number" id="adjust${i}" value="15" style="width: 80px; font-size: 24px;"> 秒
+  <button id="plus${i}" class="adjust-buttons adjust-plus" onclick="adjustTime('${name}', ${i}, true)">＋</button>
+  <button id="minus${i}" class="adjust-buttons adjust-minus" onclick="adjustTime('${name}', ${i}, false)">−</button>
 
 
      `;
@@ -263,18 +264,25 @@ function updateClockTime() {
      // ★ここに追加！ボタンの有効/無効を制御するonValue
   onValue(timerRef, (snapshot) => {
     const data = snapshot.val();
+
+    console.log("onValue発火", name, data);  // ← ここ！
+
     if (!data) return;
 
          document.getElementById("display" + i).innerText = formatTime(data.time);
          // 自分がオーナーか判定してボタン制御
-    const isOwner = !data.owner || data.owner === deviceId;
+  const isOwner = (!data.owner || data.owner === deviceId); // ← ownerがnull なら誰でもOK
+
     const box = container.children[i];
-    box.querySelector("button:nth-of-type(1)").disabled = !isOwner; // スタート
-    box.querySelector("button:nth-of-type(2)").disabled = !isOwner; // リセット
-    box.querySelector("button:nth-of-type(3)").disabled = !isOwner; // ＋
-    box.querySelector("button:nth-of-type(4)").disabled = !isOwner; // −
+
+// 明示的なセレクタに修正（再掲）
+document.getElementById(`start${i}`).disabled = !isOwner;
+document.getElementById(`reset${i}`).disabled = !isOwner;
+document.getElementById(`plus${i}`).disabled = !isOwner;
+document.getElementById(`minus${i}`).disabled = !isOwner;
+
+
   });
-       
      
      setupEnterKeyToStart(i, name); // ← これを追加
 
@@ -327,6 +335,7 @@ function updateClockTime() {
   }, 1000);
 };
 
+
    window.adjustTime = function (name, i, isAdd) {
   const adjustInput = document.getElementById(`adjust${i}`);
   const adjustSeconds = parseInt(adjustInput.value) || 0;
@@ -336,13 +345,23 @@ function updateClockTime() {
     const data = snapshot.val();
     if (!data) return;
 
+    const isOwner = !data.owner || data.owner === deviceId;
+    if (!isOwner) {
+      alert("この端末はオーナーではないため操作できません。");
+      return;
+    }
+
     let newTime = isAdd ? data.time + adjustSeconds : data.time - adjustSeconds;
     if (newTime < 0) newTime = 0;
-    //
-    set(timerRef, { time: newTime, running: true, owner: deviceId });
 
-  }, { onlyOnce: true });  // 1回だけ取得して更新
+    set(timerRef, {
+      time: newTime,
+      running: true,
+      owner: data.owner || deviceId
+    });
+  }, { onlyOnce: true });
 };
+
 
 
    window.convertQuick = function (i) {
@@ -398,8 +417,36 @@ document.getElementById("scrollBottomBtn").onclick = () => {
     recapElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 };
+document.getElementById("forceReleaseBtn").addEventListener("click", () => {
+  const confirmReset = confirm("全タイマーのオーナーを解除しますか？");
+  if (!confirmReset) return;
+
+  timerKeys.forEach(name => {
+    const timerRef = ref(db, "sharedTimers/" + name);
+    update(timerRef, {
+      owner: null,
+      // ★ ダミー値を追加して onValue を確実に発火させる
+      updatedAt: Date.now()  // ← これだけでOK（タイマーは止めない）
+    });
+  });
+
+  alert("全タイマーのオーナーを解除しました。");
+});
 
 
 </script>
+
+<!-- ⚠ 緊急オーナー解除ボタン -->
+<button id="forceReleaseBtn" style="position:fixed; bottom:10px; left:10px; font-size:20px; z-index:2000;
+  background-color: #d1b97c;
+  color: rgb(43, 43, 43);
+  padding: 8px 18px;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+">
+  ⚠ オーナー解除
+</button>
+
 </body>
 </html>
