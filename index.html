@@ -87,19 +87,7 @@ button:hover {
 .timer-box:last-child {
  margin-bottom: 70px;
   }
-#scrollTopBtn, #scrollBottomBtn {
-  position: fixed;
-  right: 30px;
-  padding: 15px;
-  font-size: 20px;
-  border: none;
-  border-radius: 10px;
-  background-color: #94b395;
-  color: white;
-  cursor: pointer;
-  z-index: 1000;
-  opacity: 0.8;
-}
+
 
 .adjust-buttons {
   font-size: 40px;
@@ -129,30 +117,72 @@ button:hover {
 .adjust-minus:hover {
   background-color: #1d8b21;
 }
-
-
-#scrollTopBtn:hover, #scrollBottomBtn:hover {
-  background-color: #4e5a46;
+#shohin-title {
+  background: #a2bee1 !important;   /* 好きな色に変更 */
+  color: white;
 }
 
-#scrollTopBtn {
-  bottom: 100px;
+#shohin-title:hover {
+  background: #5c7192 !important;   /* ホバー時の色 */
+}
+/* APCボタンだけ背景色を変更 */
+#apc-button {
+  background: #f4a6a6 !important;   /* 好きな色に変更 */
+  color: white;
 }
 
-#scrollBottomBtn {
-  bottom: 30px;
+#apc-button:hover {
+  background: #ac6f5d !important;   /* ホバー時の色 */
+}
+#scrollMenu {
+  position:fixed;
+  bottom: 18px;
+  right: 15px;
+  max-height: 80vh;    /* 縦に収まりきらなければスクロール */
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column; /* 縦並び */
+  gap: 10px;
+  z-index: 2000;
+}
+#scrollMenu button {
+  font-size: 18px;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 8px;
+  background-color:  #bdbcbb;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+#scrollMenu button:hover {
+  background-color: #333;
 }
 
  </style>
 
+ <!-- スクロールメニュー -->
+<div id="scrollMenu">
+  <button id="shohin-title" onclick="scrollToSection(0)">商品</button>
+  <button onclick="scrollToSection(1)">①ﾎﾟｰｽﾞ</button>
+  <button onclick="scrollToSection(2)">②ﾎﾟｰｽﾞ</button>
+  <button onclick="scrollToSection(3)">③ﾎﾟｰｽﾞ</button>
+  <button onclick="scrollToSection(4)">Recap</button>
+  <button id="apc-button" onclick="scrollToSection(5)">APC</button>
+
+  <button onclick="scrollToSection(6)">次セグ</button>
+  <button onclick="scrollToSection(7)">ｴﾝﾃﾞｨﾝｸﾞ</button>
+  <button onclick="scrollToSection(8)">汎用</button>
+</div>
+
+
 <body>
-  <h1>石川中継タイマー</h1>
+  <h1>開発用タイマー</h1>
 
   <div id="timers"></div>
 
 
- <button id="scrollTopBtn">↑ 商品</button>
- <button id="scrollBottomBtn">↓ Recap</button>
  
 <script src="firebase-config.js"></script>
   
@@ -228,7 +258,7 @@ button:hover {
     const box = document.createElement("div");
     box.className = "timer-box";
     box.innerHTML = `
-      <h2 class="${isClass}" ${label.includes("リキャップ") ? 'id="recapTimer"' : ''}>${label}</h2>
+      <h2 class="${isClass}" id="section-${i}">${label}</h2>
       <div class="clock-time">--:--:--</div>
       <div id="display${i}" class="display-time">0:00:00</div>
       <input type="number" id="quick${i}" placeholder="例: 15415" onchange="convertQuick(${i})"> ←まとめて入力<br/>
@@ -395,10 +425,17 @@ button:hover {
   });
 
   // スクロールボタン
-  document.getElementById("scrollTopBtn").onclick = () => {
+
+  window.scrollToSection = function(i) {
+  const el = document.getElementById("section-" + i);
+  if (el) {
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+};
+  document.getElementById("scrollMenu").onclick = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
-  document.getElementById("scrollBottomBtn").onclick = () => {
+  document.getElementById("scrollMenu").onclick = () => {
     const recapElement = document.getElementById("recapTimer");
     if (recapElement) {
       recapElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
