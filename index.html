@@ -232,6 +232,35 @@ button:hover {
   }
   requestAnimationFrame(updateClockTime);
 
+  // ネット接続状態の監視
+const offlineIcon = document.getElementById("offlineIcon");
+let offlineTimer = null;
+
+function setOffline(isOffline) {
+  if (isOffline) {
+    // 一瞬の切断やページ読み込み直後のチラつき防止のため、2秒続いたら表示
+    if (!offlineTimer) {
+      offlineTimer = setTimeout(() => {
+        offlineIcon.style.display = "flex";
+      }, 2000);
+    }
+  } else {
+    clearTimeout(offlineTimer);
+    offlineTimer = null;
+    offlineIcon.style.display = "none";
+  }
+}
+
+// Firebaseとの接続状態（サーバーに実際に繋がっているか）
+onValue(ref(db, ".info/connected"), (snap) => {
+  setOffline(snap.val() !== true);
+});
+
+// ブラウザ自体のオンライン/オフライン検知（反応が早い）
+window.addEventListener("offline", () => setOffline(true));
+window.addEventListener("online", () => { /* Firebase側の復帰通知に任せる */ });
+
+
   // タイマー定義
   const timerLabels = [
     "商品時間", "①コメントポーズ", "②コメントポーズ", "③コメントポーズ",
@@ -497,11 +526,16 @@ function updateDisplayLoop() {
 requestAnimationFrame(updateDisplayLoop);
 
 
-
-
-
-
 </script>
+
+
+<!-- 📡 オフライン表示アイコン -->
+<div id="offlineIcon" title="ネットワークに接続されていません"
+  style="display:none; position:fixed; bottom:72px; left:12px; z-index:2000;
+         font-size:16px; font-weight:bold; color:#fff; background:#d32f2f;
+         padding:4px 10px; border-radius:20px; align-items:center; gap:4px;">
+  ⚠ 未接続
+</div>
 
 <!-- ⚠ 緊急オーナー解除ボタン -->
 <button id="forceReleaseBtn" style="position:fixed; bottom:10px; left:10px; font-size:20px; z-index:2000;
