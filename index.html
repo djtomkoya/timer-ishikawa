@@ -189,6 +189,12 @@ button:hover {
   <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
   import {
+  getAuth,
+  signInWithEmailAndPassword,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+    
+  import {
     getDatabase,
     ref,
     set,
@@ -200,6 +206,52 @@ button:hover {
   const firebaseConfig = window.firebaseConfig;
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
+
+  const auth = getAuth(app);
+const SHARED_EMAIL = "timer@imaginate.com"; // 手順1で登録したもの
+
+const loginBox = document.createElement("div");
+loginBox.id = "loginBox";
+loginBox.style.cssText =
+  "position:fixed; inset:0; background:#fff; z-index:3000; display:flex; " +
+  "flex-direction:column; align-items:center; justify-content:center; gap:10px;";
+loginBox.innerHTML = `
+  <h1>Shop中継タイマー</h1>
+  <input type="password" id="loginPw" placeholder="パスワード" style="width:300px; text-align:left;">
+  <button id="loginBtn">ログイン</button>
+  <div id="loginMsg" style="color:#d32f2f; font-size:24px;"></div>
+`;
+document.body.appendChild(loginBox);
+
+async function doLogin() {
+  const pw = document.getElementById("loginPw").value;
+  const msg = document.getElementById("loginMsg");
+  msg.innerText = "";
+  try {
+    await signInWithEmailAndPassword(auth, SHARED_EMAIL, pw);
+  } catch (e) {
+    if (e.code === "auth/too-many-requests") {
+      msg.innerText = "試行回数が多すぎます。しばらく待ってください";
+    } else {
+      msg.innerText = "パスワードが違います";
+    }
+  }
+}
+document.getElementById("loginBtn").addEventListener("click", doLogin);
+document.getElementById("loginPw").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") doLogin();
+});
+
+let wasLoggedOut = false;
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    loginBox.style.display = "none";
+    if (wasLoggedOut) location.reload();
+  } else {
+    wasLoggedOut = true;
+    loginBox.style.display = "flex";
+  }
+});
 
   // デバイス識別
   let deviceId = localStorage.getItem("deviceId");
