@@ -213,7 +213,7 @@ const SHARED_EMAIL = "timer@imaginate.com"; // 手順1で登録したもの
 const loginBox = document.createElement("div");
 loginBox.id = "loginBox";
 loginBox.style.cssText =
-  "position:fixed; inset:0; background:#fff; z-index:3000; display:flex; " +
+  "position:fixed; inset:0; background:#fff; z-index:3000; display:none; " +
   "flex-direction:column; align-items:center; justify-content:center; gap:10px;";
 loginBox.innerHTML = `
   <h1>Shop中継タイマー</h1>
@@ -244,6 +244,7 @@ document.getElementById("loginPw").addEventListener("keydown", (e) => {
 
 let wasLoggedOut = false;
 onAuthStateChanged(auth, (user) => {
+  document.body.classList.add("ready"); // 確認が終わったら表示
   if (user) {
     loginBox.style.display = "none";
     if (wasLoggedOut) location.reload();
